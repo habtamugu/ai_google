@@ -1,0 +1,8 @@
+{
+  "name": "SelamMind - Ethiopia Mental Health Support",
+  "description": "An inclusive, visual-first mental health platform for Ethiopia supporting Amharic, Afaan Oromo, and Tigrigna with animated guidance for low-literacy and hearing-impaired users.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ]
+}

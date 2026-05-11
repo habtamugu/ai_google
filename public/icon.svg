@@ -1,0 +1,48 @@
+<svg
+  viewBox="0 0 100 100"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="100" height="100" rx="20" fill="#ffffff" />
+  {/* Headset Main Frame */}
+  <path
+    d="M20 45C20 28.4315 33.4315 15 50 15C66.5685 15 80 28.4315 80 45"
+    stroke="#26A69A"
+    strokeWidth="8"
+    strokeLinecap="round"
+  />
+  
+  {/* Ear Cups */}
+  <rect x="8" y="45" width="12" height="25" rx="6" stroke="#26A69A" strokeWidth="8" strokeLinejoin="round" />
+  <rect x="80" y="45" width="12" height="25" rx="6" stroke="#26A69A" strokeWidth="8" strokeLinejoin="round" />
+  
+  {/* Microphone Arm */}
+  <path
+    d="M20 70C20 82 35 88 45 88"
+    stroke="#26A69A"
+    strokeWidth="8"
+    strokeLinecap="round"
+  />
+  
+  {/* Microphone Tip */}
+  <rect x="42" y="82" width="16" height="12" rx="6" fill="#26A69A" />
+
+  {/* AI Text in the center */}
+  <g transform="translate(32, 38)">
+    {/* A */}
+    <path
+      d="M0 22L8 0L16 22M3 15H13"
+      stroke="#26A69A"
+      strokeWidth="5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* I */}
+    <path
+      d="M24 0V22"
+      stroke="#26A69A"
+      strokeWidth="5"
+      strokeLinecap="round"
+    />
+  </g>
+</svg>

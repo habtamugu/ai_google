@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required, email format)
+    //   - language: string (optional, enum)
+    //   - isVisualOnly: bool (optional)
+    //   - highContrast: bool (optional)
+    //   - isVoiceEnabled: bool (optional)
+    //   - fontSize: string (optional, enum)
+    //   - hasCompletedOnboarding: bool (optional)
+    //   - lastActive: timestamp (optional)
+    //
+    // Collection: /users/{userId}/moods/{moodId}
+    // Fields:
+    //   - uid: string (required)
+    //   - moodId: string (required)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: /users/{userId}/exercises/{exerciseId}
+    // Fields:
+    //   - uid: string (required)
+    //   - exerciseId: string (required)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: /users/{userId}/chat/{messageId}
+    // Fields:
+    //   - uid: string (required)
+    //   - role: string (required, enum: user/assistant)
+    //   - content: string (required, max 5000 chars)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: /users/{userId}/summaries/latest
+    // Fields:
+    //   - uid: string (required)
+    //   - summary: string (required, max 2000 chars)
+    //   - lastUpdated: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is timestamp;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
+             isValidEmail(data.email) &&
+             (!('language' in data) || data.language in ['en', 'am', 'om', 'ti', 'so', 'aa']) &&
+             (!('fontSize' in data) || data.fontSize in ['small', 'normal', 'large', 'extraLarge']) &&
+             (!('isVisualOnly' in data) || data.isVisualOnly is bool) &&
+             (!('highContrast' in data) || data.highContrast is bool) &&
+             (!('isVoiceEnabled' in data) || data.isVoiceEnabled is bool) &&
+             (!('hasCompletedOnboarding' in data) || data.hasCompletedOnboarding is bool);
+    }
+
+    function isValidMood(data) {
+      return data.uid == request.auth.uid &&
+             data.moodId is string && data.moodId.size() < 50 &&
+             isValidTimestamp(data.timestamp);
+    }
+
+    function isValidExercise(data) {
+      return data.uid == request.auth.uid &&
+             data.exerciseId is string && data.exerciseId.size() < 50 &&
+             isValidTimestamp(data.timestamp);
+    }
+
+    function isValidChatMessage(data) {
+      return data.uid == request.auth.uid &&
+             data.role in ['user', 'assistant'] &&
+             data.content is string && data.content.size() < 5000 &&
+             isValidTimestamp(data.timestamp);
+    }
+
+    function isValidSummary(data) {
+      return data.uid == request.auth.uid &&
+             data.summary is string && data.summary.size() < 2000 &&
+             isValidTimestamp(data.lastUpdated);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      
+      // Mood History
+      match /moods/{moodId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMood(request.resource.data);
+      }
+      
+      // Exercise History
+      match /exercises/{exerciseId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidExercise(request.resource.data);
+      }
+      
+      // Chat History
+      match /chat/{messageId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidChatMessage(request.resource.data);
+      }
+      
+      // Chat Summaries
+      match /summaries/{summaryId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && isValidSummary(request.resource.data);
+      }
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

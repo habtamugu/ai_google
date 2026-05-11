@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Private profile data for the user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "language": { "type": "string", "enum": ["en", "am", "om", "ti", "so", "aa"] },
+        "isVisualOnly": { "type": "boolean" },
+        "highContrast": { "type": "boolean" },
+        "isVoiceEnabled": { "type": "boolean" },
+        "fontSize": { "type": "string", "enum": ["small", "normal", "large", "extraLarge"] },
+        "hasCompletedOnboarding": { "type": "boolean" },
+        "lastActive": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "MoodEntry": {
+      "title": "Mood Entry",
+      "description": "A record of the user's mood at a specific time",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "moodId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "moodId", "timestamp"]
+    },
+    "ExerciseEntry": {
+      "title": "Exercise Entry",
+      "description": "A record of a completed exercise",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "exerciseId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "exerciseId", "timestamp"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A message in the AI chat history",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "content", "timestamp"]
+    },
+    "ChatSummary": {
+      "title": "Chat Summary",
+      "description": "A summary of the user's chat history",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "summary": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "summary", "lastUpdated"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/moods/{moodId}": {
+      "schema": "MoodEntry",
+      "description": "User's mood history"
+    },
+    "/users/{userId}/exercises/{exerciseId}": {
+      "schema": "ExerciseEntry",
+      "description": "User's exercise history"
+    },
+    "/users/{userId}/chat/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "User's chat history"
+    },
+    "/users/{userId}/summaries/latest": {
+      "schema": "ChatSummary",
+      "description": "User's latest chat summary"
+    }
+  }
+}
